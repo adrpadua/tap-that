@@ -7,12 +7,15 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController {
     
     // Variables
     var maxTaps = 0
     var currentTaps = 0
+    
+    var btnSound: AVAudioPlayer!
     
     // Outlets
     @IBOutlet weak var logoImg: UIImageView!
@@ -23,8 +26,14 @@ class ViewController: UIViewController {
     @IBOutlet weak var tapsLbl: UILabel!
     
     @IBAction func onCoinTapped(sender: UIButton!) {
+        playSound()
+        
         currentTaps += 1
         updateTapsLbl()
+        
+        if isGameOver() {
+            restartGame()
+        }
     }
     
     @IBAction func onPlayBtnPressed(sender: UIButton!) {
@@ -44,6 +53,28 @@ class ViewController: UIViewController {
             updateTapsLbl()
         }
     }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let path = NSBundle.mainBundle().pathForResource("coin", ofType: "wav")
+        let url = NSURL(fileURLWithPath: path!)
+        
+        do {
+            try btnSound = AVAudioPlayer(contentsOfURL: url)
+        } catch let err as NSError {
+            print(err.debugDescription)
+        }
+    }
+    
+    func playSound() {
+        if btnSound.playing {
+            btnSound.stop()
+        }
+        
+        btnSound.play()
+    }
+    
     
     func isGameOver() -> Bool {
         if currentTaps >= maxTaps {
